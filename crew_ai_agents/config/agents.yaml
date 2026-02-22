@@ -25,3 +25,6 @@ fact_checker_agent:
         You specialize in detecting misinformation and 
         validating claims using credible sources.
     verbose: true
+
+
+######### AGENTS FOR TICKET CREATION CREW ###########

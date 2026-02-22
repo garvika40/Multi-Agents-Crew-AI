@@ -1,0 +1,23 @@
+[project]
+name = "deepresearch-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "crewai>=1.6.1",
+    "crewai-tools>=1.6.1",
+    "ddgs>=9.10.0",
+    "dotenv>=0.9.9",
+    "duckduckgo-search>=8.1.1",
+    "fastapi>=0.128.0",
+    "langchain>=1.2.7",
+    "langchain-community>=0.4.1",
+    "langchain-core>=1.2.7",
+    "langchain-google-genai>=4.2.0",
+    "langchain-openai>=1.1.7",
+    "langchain-tavily>=0.2.17",
+    "langgraph>=1.0.7",
+    "python-dotenv>=1.2.1",
+    "rich>=14.3.1",
+]
