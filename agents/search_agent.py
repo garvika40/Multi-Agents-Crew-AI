@@ -227,8 +227,8 @@ agent_builder.add_edge("tool_node", "llm_call")
 agent_builder.add_edge("compress_research", "finalize_run_log")
 agent_builder.add_edge("finalize_run_log", END)
 
-# ---- compile ----
 
+# ---- compile ----
 researcher_agent = agent_builder.compile()
 
 

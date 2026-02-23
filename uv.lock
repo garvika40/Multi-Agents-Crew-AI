@@ -653,6 +653,7 @@ dependencies = [
     { name = "dotenv" },
     { name = "duckduckgo-search" },
     { name = "fastapi" },
+    { name = "firecrawl-py" },
     { name = "langchain" },
     { name = "langchain-community" },
     { name = "langchain-core" },
@@ -660,6 +661,8 @@ dependencies = [
     { name = "langchain-openai" },
     { name = "langchain-tavily" },
     { name = "langgraph" },
+    { name = "pip" },
+    { name = "propcache" },
     { name = "python-dotenv" },
     { name = "rich" },
 ]
@@ -672,6 +675,7 @@ requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "duckduckgo-search", specifier = ">=8.1.1" },
     { name = "fastapi", specifier = ">=0.128.0" },
+    { name = "firecrawl-py", specifier = ">=4.16.0" },
     { name = "langchain", specifier = ">=1.2.7" },
     { name = "langchain-community", specifier = ">=0.4.1" },
     { name = "langchain-core", specifier = ">=1.2.7" },
@@ -679,6 +683,8 @@ requires-dist = [
     { name = "langchain-openai", specifier = ">=1.1.7" },
     { name = "langchain-tavily", specifier = ">=0.2.17" },
     { name = "langgraph", specifier = ">=1.0.7" },
+    { name = "pip" },
+    { name = "propcache", specifier = ">=0.4.1" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "rich", specifier = ">=14.3.1" },
 ]
@@ -828,6 +834,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/bb/29/745f7d30d47fe0f251d3ad3dc2978a23141917661998763bebb6da007eb1/filetype-1.2.0.tar.gz", hash = "sha256:66b56cd6474bf41d8c54660347d37afcc3f7d1970648de365c102ef77548aadb", size = 998020, upload-time = "2022-11-02T17:34:04.141Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl", hash = "sha256:7ce71b6880181241cf7ac8697a2f1eb6a8bd9b429f7ad6d27b8db9ba5f1c2d25", size = 19970, upload-time = "2022-11-02T17:34:01.425Z" },
+]
+
+[[package]]
+name = "firecrawl-py"
+version = "4.16.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "httpx" },
+    { name = "nest-asyncio" },
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "requests" },
+    { name = "websockets" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8c/ff/9f3dade9baf882e8aee9dd5869f6c69295794d9b62f1a3f4444136b8146c/firecrawl_py-4.16.0.tar.gz", hash = "sha256:5f6d6fdeb3404429c851fc5a4e990f6659a9e9c72577b434480ad1616bb03374", size = 168579, upload-time = "2026-02-18T18:34:22.755Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/36/835bcd6c601c80a64629a9e6c55cc4bd27d60ee7188405cf6742cbac56ac/firecrawl_py-4.16.0-py3-none-any.whl", hash = "sha256:d8e184f37a94562fe86613ef94b9ee1ccf76f628bea4afad72bd25c405d140dd", size = 211537, upload-time = "2026-02-18T18:34:21.558Z" },
 ]
 
 [[package]]
@@ -2117,6 +2141,15 @@ wheels = [
 ]
 
 [[package]]
+name = "nest-asyncio"
+version = "1.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/f8/51569ac65d696c8ecbee95938f89d4abf00f47d58d48f6fbabfe8f0baefe/nest_asyncio-1.6.0.tar.gz", hash = "sha256:6f172d5449aca15afd6c646851f4e31e02c598d553a667e38cafa997cfec55fe", size = 7418, upload-time = "2024-01-21T14:25:19.227Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a0/c4/c2971a3ba4c6103a3d10c4b0f24f461ddc027f0f09763220cf35ca1401b3/nest_asyncio-1.6.0-py3-none-any.whl", hash = "sha256:87af6efd6b5e897c81050477ef65c62e2b2f35d51703cae01aff2905b1852e1c", size = 5195, upload-time = "2024-01-21T14:25:17.223Z" },
+]
+
+[[package]]
 name = "numpy"
 version = "2.4.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2551,6 +2584,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/01/4a/9202e8d11714c1fc5951f2e1ef362f2d7fbc595e1f6717971d5dd750e969/pillow-12.1.1-cp314-cp314t-win32.whl", hash = "sha256:d2912fd8114fc5545aa3a4b5576512f64c55a03f3ebcca4c10194d593d43ea36", size = 6438736, upload-time = "2026-02-11T04:22:46.347Z" },
     { url = "https://files.pythonhosted.org/packages/f3/ca/cbce2327eb9885476b3957b2e82eb12c866a8b16ad77392864ad601022ce/pillow-12.1.1-cp314-cp314t-win_amd64.whl", hash = "sha256:4ceb838d4bd9dab43e06c363cab2eebf63846d6a4aeaea283bbdfd8f1a8ed58b", size = 7182894, upload-time = "2026-02-11T04:22:48.114Z" },
     { url = "https://files.pythonhosted.org/packages/ec/d2/de599c95ba0a973b94410477f8bf0b6f0b5e67360eb89bcb1ad365258beb/pillow-12.1.1-cp314-cp314t-win_arm64.whl", hash = "sha256:7b03048319bfc6170e93bd60728a1af51d3dd7704935feb228c4d4faab35d334", size = 2546446, upload-time = "2026-02-11T04:22:50.342Z" },
+]
+
+[[package]]
+name = "pip"
+version = "26.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/83/0d7d4e9efe3344b8e2fe25d93be44f64b65364d3c8d7bc6dc90198d5422e/pip-26.0.1.tar.gz", hash = "sha256:c4037d8a277c89b320abe636d59f91e6d0922d08a05b60e85e53b296613346d8", size = 1812747, upload-time = "2026-02-05T02:20:18.702Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/de/f0/c81e05b613866b76d2d1066490adf1a3dbc4ee9d9c839961c3fc8a6997af/pip-26.0.1-py3-none-any.whl", hash = "sha256:bdb1b08f4274833d62c1aa29e20907365a2ceb950410df15fc9521bad440122b", size = 1787723, upload-time = "2026-02-05T02:20:16.416Z" },
 ]
 
 [[package]]
