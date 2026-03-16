@@ -34,8 +34,8 @@ def duckduckgo_search_tool(query: str) -> str:
 @tool(parse_docstring=True)
 def tavily_search_tool(
     query: str,
-    max_results: int = 15,
-    include_raw_content: bool = True,
+    max_results: int = 10,
+    include_raw_content: bool = False,
     include_links: bool = True,
 ) -> str:
     """

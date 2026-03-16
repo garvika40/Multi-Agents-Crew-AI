@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Presales Report – {{ company }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Solway:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #ffffff;
+      font-family: 'Solway', serif;
+      color: #241f29;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 40px 80px;
+    }
+
+    /* ── HEADER ── */
+    .report-header {
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 28px;
+      margin-bottom: 40px;
+    }
+    .report-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #241f29;
+      margin-bottom: 8px;
+    }
+    .report-header h1 {
+      font-family: 'PT Sans', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #55118a;
+      line-height: 1.15;
+    }
+    .report-header .company-desc {
+      margin-top: 10px;
+      color: #241f29;
+      font-size: 14.5px;
+      max-width: 680px;
+    }
+    .report-meta { margin-top: 14px; font-size: 12px; color: #bdbdbd; }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 44px; }
+    .section-title {
+      font-family: 'PT Sans', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #55118a;
+      border-bottom: 1.5px solid #e8d5f5;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+
+    /* ── FIELD ROWS ── */
+    .field-row {
+      display: flex;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid #f0f0f0;
+      align-items: flex-start;
+    }
+    .field-row:last-child { border-bottom: none; }
+    .field-label {
+      min-width: 185px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #241f29;
+      padding-top: 3px;
+      flex-shrink: 0;
+    }
+    .field-value { color: #241f29; font-size: 14.5px; }
+
+    /* ── TAGS ── */
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tag {
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 100px;
+      font-size: 12px;
+      padding: 3px 11px;
+      color: #55118a;
+      font-weight: 500;
+    }
+
+    /* ── CARD GRID ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 15px 17px;
+    }
+    .card-title {
+      font-family: 'PT Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #55118a;
+      margin-bottom: 5px;
+    }
+    .card-text { font-size: 13px; color: #555; line-height: 1.55; }
+    .card-link {
+      display: inline-block;
+      margin-top: 7px;
+      font-size: 11.5px;
+      color: #764ba2;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .card-link:hover { color: #55118a; text-decoration: underline; }
+
+    /* ── NEWS ── */
+    .news-item {
+      border-left: 3px solid #55118a;
+      padding: 13px 16px;
+      background: #fafafa;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 11px;
+    }
+    .news-item:last-child { margin-bottom: 0; }
+    .news-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .news-headline {
+      font-family: 'PT Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.93rem;
+      color: #241f29;
+      margin-bottom: 5px;
+    }
+    .news-summary { font-size: 13.5px; color: #555; margin-bottom: 8px; }
+    .news-implication {
+      font-size: 12.5px;
+      color: #55118a;
+      background: #f3eafb;
+      border-radius: 6px;
+      padding: 7px 12px;
+    }
+    .cat-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      background: #ede0f7;
+      color: #55118a;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+    .source-badge, .date-badge { font-size: 11px; color: #bdbdbd; }
+
+    /* ── SIGNAL BOX ── */
+    .signal-box {
+      background: #fafafa;
+      border: 1px solid #e8d5f5;
+      border-left: 4px solid #55118a;
+      border-radius: 8px;
+      padding: 13px 17px;
+      font-size: 14px;
+      color: #241f29;
+      margin-bottom: 20px;
+    }
+    .signal-box strong { color: #55118a; }
+
+    /* ── CONFIDENCE CHIP ── */
+    .chip { display: inline-block; border-radius: 100px; padding: 2px 12px; font-size: 12px; font-weight: 600; }
+    .chip-high   { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .chip-medium { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
+    .chip-low    { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+
+    /* ── EXEC GRID ── */
+    .exec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 10px; }
+    .exec-card {
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .exec-name { font-weight: 700; font-size: 13px; color: #241f29; }
+    .exec-role { font-size: 12px; color: #55118a; margin-top: 2px; }
+
+    /* ── JOB CARD ── */
+    .job-card {
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 13px 17px;
+      margin-bottom: 9px;
+    }
+    .job-card:last-child { margin-bottom: 0; }
+    .job-title { font-family: 'PT Sans', sans-serif; font-weight: 700; font-size: 0.93rem; color: #55118a; }
+    .job-desc { font-size: 13px; color: #555; margin-top: 4px; }
+    .job-link { font-size: 11.5px; color: #764ba2; text-decoration: none; word-break: break-all; margin-top: 5px; display: inline-block; }
+
+    /* ── SOURCE LIST ── */
+    .source-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+    .source-item:last-child { border-bottom: none; }
+    .source-title { font-weight: 700; font-size: 13.5px; color: #55118a; }
+    .source-url { font-size: 11.5px; color: #bdbdbd; word-break: break-all; }
+    .source-summary { font-size: 13px; color: #555; margin-top: 3px; }
+
+    /* ── SUB LABEL ── */
+    .sub-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #121212;
+      margin: 18px 0 9px;
+    }
+
+    /* ── FOOTER ── */
+    .report-footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+      font-size: 12px;
+      color: #bdbdbd;
+    }
+
+    @media (max-width: 600px) {
+      .page { padding: 28px 20px 60px; }
+      .field-label { min-width: 120px; }
+      .card-grid, .exec-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="report-header">
+    <h1>{{ company }}  - Presales Intelligence Report </h1>    
+
+    {% if company_description %}
+    <p class="company-desc">{{ company_description }}</p>
+    {% endif %}
+  </div>
+
+
+  
+  <!-- 2. COMPANY INTELLIGENCE -->
+  {% if mission_vision %}
+  <div class="section">
+    <div class="section-title">Company Intelligence</div>
+
+    {% if mission_vision.about_company %}
+    <div class="field-row">
+      <span class="field-label">About</span>
+      <span class="field-value">{{ mission_vision.about_company }}</span>
+    </div>
+    {% endif %}
+    {% if mission_vision.mission_statement %}
+    <div class="field-row">
+      <span class="field-label">Mission</span>
+      <span class="field-value">{{ mission_vision.mission_statement }}</span>
+    </div>
+    {% endif %}
+    {% if mission_vision.vision_statement %}
+    <div class="field-row">
+      <span class="field-label">Vision</span>
+      <span class="field-value">{{ mission_vision.vision_statement }}</span>
+    </div>
+    {% endif %}
+    {% if mission_vision.purpose_statement %}
+    <div class="field-row">
+      <span class="field-label">Purpose</span>
+      <span class="field-value">{{ mission_vision.purpose_statement }}</span>
+    </div>
+    {% endif %}
+    {% if mission_vision.strategic_priorities %}
+    <div class="field-row">
+      <span class="field-label">Strategic Priorities</span>
+      <span class="field-value">
+        <div class="tags">{% for p in mission_vision.strategic_priorities %}<span class="tag">{{ p }}</span>{% endfor %}</div>
+      </span>
+    </div>
+    {% endif %}
+    {% if mission_vision.corporate_values %}
+    <div class="field-row">
+      <span class="field-label">Corporate Values</span>
+      <span class="field-value">
+        <div class="tags">{% for v in mission_vision.corporate_values %}<span class="tag">{{ v }}</span>{% endfor %}</div>
+      </span>
+    </div>
+    {% endif %}
+    {% if mission_vision.industries_served %}
+    <div class="field-row">
+      <span class="field-label">Industries Served</span>
+      <span class="field-value">
+        <div class="tags">{% for i in mission_vision.industries_served %}<span class="tag">{{ i }}</span>{% endfor %}</div>
+      </span>
+    </div>
+    {% endif %}
+    {% if mission_vision.geographic_presence %}
+    <div class="field-row">
+      <span class="field-label">Geography</span>
+      <span class="field-value">
+        <div class="tags">{% for g in mission_vision.geographic_presence %}<span class="tag">{{ g }}</span>{% endfor %}</div>
+      </span>
+    </div>
+    {% endif %}
+    {% if mission_vision.areas_of_operations %}
+    <div class="field-row">
+      <span class="field-label">Operations</span>
+      <span class="field-value">
+        <div class="tags">{% for a in mission_vision.areas_of_operations %}<span class="tag">{{ a }}</span>{% endfor %}</div>
+      </span>
+    </div>
+    {% endif %}
+    {% if mission_vision.key_products_services %}
+    <div class="field-row">
+      <span class="field-label">Products &amp; Services</span>
+      <span class="field-value">
+        <div class="tags">{% for p in mission_vision.key_products_services %}<span class="tag">{{ p }}</span>{% endfor %}</div>
+      </span>
+    </div>
+    {% endif %}
+
+    {% if mission_vision.leadership_team %}
+    <div class="sub-label">Leadership Team</div>
+    <div class="exec-grid">
+      {% for exec in mission_vision.leadership_team %}
+      <div class="exec-card">
+        <div class="exec-name">{{ exec.name }}</div>
+        <div class="exec-role">{{ exec.role }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if mission_vision.source_pages %}
+    <div class="sub-label">Source Pages</div>
+    {% for page in mission_vision.source_pages %}
+    <div style="margin-bottom:4px;"><a class="card-link" href="{{ page }}" target="_blank">{{ page }}</a></div>
+    {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- 1. REVENUE INTELLIGENCE -->
+  {% if revenue_data %}
+  <div class="section">
+    <div class="section-title">Revenue Intelligence</div>
+
+    {% if revenue_data.industry %}
+    <div class="field-row">
+      <span class="field-label">Industry</span>
+      <span class="field-value">{{ revenue_data.industry }}</span>
+    </div>
+    {% endif %}
+    {% if revenue_data.listed_company %}
+    <div class="field-row">
+      <span class="field-label">Listed Company</span>
+      <span class="field-value">{{ revenue_data.listed_company }}</span>
+    </div>
+    {% endif %}
+
+    {% if revenue_data.revenue_summary %}
+    <div class="field-row">
+      <span class="field-label">Revenue Summary</span>
+      <span class="field-value">{{ revenue_data.revenue_summary }}</span>
+    </div>
+    {% endif %}
+    {% if revenue_data.latest_revenue_summary %}
+    <div class="field-row">
+      <span class="field-label">Latest Revenue</span>
+      <span class="field-value">{{ revenue_data.latest_revenue_summary }}</span>
+    </div>
+    {% endif %}
+    {% if revenue_data.estimated_it_spend_summary %}
+    <div class="field-row">
+      <span class="field-label">Est. IT Spend</span>
+      <span class="field-value">{{ revenue_data.estimated_it_spend_summary }}</span>
+    </div>
+    {% endif %}
+
+    {% if revenue_data.key_financial_sources %}
+    <div class="sub-label">Key Financial Sources</div>
+    {% for src in revenue_data.key_financial_sources %}
+    <div class="source-item">
+      <div class="source-title">{{ src.title }}</div>
+      <div class="source-url">{{ src.url }}</div>
+      <div class="source-summary">{{ src.summary }}</div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+
+
+
+  <!-- 3. NEWS & SIGNALS -->
+  {% if news %}
+  <div class="section">
+    <div class="section-title"> News &amp; Market Signals</div>
+
+    {% if news.overall_signal %}
+    <div class="signal-box"><strong>Overall Signal:</strong> {{ news.overall_signal }}</div>
+    {% endif %}
+
+    {% if news.key_news %}
+    {% for item in news.key_news %}
+    <div class="news-item">
+      <div class="news-meta">
+        <span class="cat-badge">{{ item.category }}</span>
+        {% if item.date %}<span class="date-badge">{{ item.date }}</span>{% endif %}
+        {% if item.source %}<span class="source-badge">{{ item.source }}</span>{% endif %}
+      </div>
+      <div class="news-headline">{{ item.headline }}</div>
+      <div class="news-summary">{{ item.summary }}</div>
+      {% if item.presales_implication %}
+      <div class="news-implication"><strong>💡 Presales Implication:</strong> {{ item.presales_implication }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+
+  <!-- 4. AI OUTLOOK -->
+  {% if ai_research %}
+  <div class="section">
+    <div class="section-title">AI Outlook</div>
+
+    {% if ai_research.overall_take_on_ai %}
+    <div class="signal-box"><strong>Overall Take on AI:</strong> {{ ai_research.overall_take_on_ai }}</div>
+    {% endif %}
+
+    {% if ai_research.ai_related_news %}
+    <div class="sub-label">AI Initiatives &amp; News</div>
+    <div class="card-grid">
+      {% for item in ai_research.ai_related_news %}
+      <div class="card">
+        <div class="card-title">{{ item.title }}</div>
+        <div class="card-text">{{ item.summary }}</div>
+        {% if item.link %}<a class="card-link" href="{{ item.link }}" target="_blank">{{ item.link }}</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if ai_research.ai_partnerships %}
+    <div class="sub-label" style="margin-top:20px;">AI Partnerships</div>
+    <div class="card-grid">
+      {% for item in ai_research.ai_partnerships %}
+      <div class="card">
+        <div class="card-title">{{ item.title }}</div>
+        <div class="card-text">{{ item.summary }}</div>
+        {% if item.link %}<a class="card-link" href="{{ item.link }}" target="_blank">{{ item.link }}</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+
+  <!-- 5. JOB POSTINGS -->
+  {% if jobs_data %}
+  <div class="section">
+    <div class="section-title">Open Job Postings</div>
+    {% if jobs_data.jobs_at_company %}
+    {% for job in jobs_data.jobs_at_company %}
+    <div class="job-card">
+      <div class="job-title">{{ job.job_title }}</div>
+      <div class="job-desc">{{ job.job_description }}</div>
+      {% if job.job_link %}<a class="job-link" href="{{ job.job_link }}" target="_blank">{{ job.job_link }}</a>{% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <p style="color:#bdbdbd;">No job postings found.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+
+  <!-- FOOTER -->
+  <div class="report-footer">
+    Presales Intelligence Report &nbsp;·&nbsp;  Orbrick Consulting &nbsp;·&nbsp; 
+  </div>
+
+</div>
+</body>
+</html>

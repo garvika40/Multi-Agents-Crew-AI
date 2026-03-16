@@ -210,8 +210,8 @@ agent_builder.add_node("compress_research", compress_research)
 agent_builder.add_node("finalize_run_log", finalize_run_log)
 
 # ---- edges ----
-
-agent_builder.add_edge(START, "llm_call")
+agent_builder.add_edge(START, "init_state")
+agent_builder.add_edge("init_state", "llm_call")
 
 agent_builder.add_conditional_edges(
     "llm_call",
