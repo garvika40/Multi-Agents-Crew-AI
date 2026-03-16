@@ -1,57 +1,128 @@
-analyze_draft:
-  description: |
-    Analyze the markdown file at {draft_path} to create a developer-focused
-    technical overview
+sharpen_topic_task:
+  description: >
+    Receive the following raw topic idea from the human: {topic}.
+    Produce a single precise claim that can be investigated and supported
+    with facts. Identify 3 to 5 sub-questions that, when answered, would
+    make that claim credible to a skeptical reader. Generate a list of
+    specific search terms for each sub-question. Do not suggest tone,
+    format, or audience. Output only the claim, sub-questions, and search
+    terms in structured format.
+  expected_output: >
+    A JSON object with three keys:
+    "core_claim" containing a single sentence,
+    "sub_questions" containing a list of 3 to 5 strings,
+    "search_terms" containing a list of search term strings grouped by
+    sub-question.
+  agent: topic_analyst
 
-    1. Map out the core idea that the blog discusses
+research_task:
+  description: >
+    Using the core claim, sub-questions, and search terms provided by the
+    Topic Analyst, search the web for credible sources. For each sub-question,
+    find 2 to 3 sources. Prioritize peer-reviewed journals, government data,
+    institutional research, and established statistical bodies. For each
+    source, extract the key factual claim or data point it contains, its
+    URL, and its publication or institution name. Flag each source as either
+    "data" (contains statistics or numeric evidence) or "analysis" (contains
+    expert opinion, case description, or qualitative finding).
+  expected_output: >
+    A JSON object with a "sources" array. Each item in the array contains:
+    "sub_question" the question it addresses,
+    "url" the source URL,
+    "institution" the publication or body name,
+    "extract" the raw factual text extracted from the source,
+    "type" either "data" or "analysis".
+  agent: researcher
+  context:
+    - sharpen_topic_task
 
-    2. Identify key sections and what each section is about
+filter_task:
+  description: >
+    Receive the raw research extracts from the Researcher. Apply the following
+    four criteria to every extract without exception:
+    1. Is it factual and verifiable from the source provided?
+    2. Does it directly support the core claim?
+    3. Does it come from a reputed source — journal, institution, or statistics body?
+    4. Can it be expressed in plain language without requiring technical explanation?
+    Any extract that fails one or more criteria is discarded. Do not explain
+    what was discarded. Group passing extracts into three categories:
+    core facts, supporting statistics, and potential case studies.
+  expected_output: >
+    A JSON object with three keys:
+    "core_facts" a list of extract objects that passed all criteria and
+    establish the foundational claims,
+    "supporting_statistics" a list of extract objects containing numeric
+    or measurable data,
+    "case_studies" a list of extract objects describing a concrete real-world
+    example or instance of the claim in action.
+    Each extract object retains its original url, institution, and extract fields.
+  agent: editorial_filter
+  context:
+    - research_task
+    - sharpen_topic_task
 
-    3. For each section, extract all URLs that appear inside image markdown syntax ![](image_url)
+write_task:
+  description: >
+    Using the filtered research, write a complete post draft following this
+    exact structure in order:
+    1. Opening statement — one sentence that states what is happening factually.
+    2. Terms block — define any technical or domain-specific terms used in the post.
+    3. Claims paragraph — state the core claim and supporting opinions clearly.
+    4. Facts paragraph — present only verified facts from the filtered research.
+    5. Examples or case studies paragraph — describe one concrete real-world instance.
+    6. Closing statement — one sentence that summarizes without motivating or advising.
+    7. Sources — list all sources used with URLs.
+    8. Hashtags — 3 to 5 relevant hashtags using only the hash symbol and no other punctuation.
 
-    4. You must associate these identified image urls to their 
-    correspoinding sections, so that we can use them with the tweets as media pieces
+    Apply these tone rules without exception:
+    - Write in a sassy, direct tone. Not humorous. Not warm.
+    - Write in full sentences. No one-liners.
+    - Report information. Do not instruct or advise the reader.
 
-    Focus on details that are important for a comprehensive understanding of
-    the blog.
-  expected_output: |
-    A technical analysis containing:
-    - Blog title and core concept/idea
-    - Key technical sections identified with their main points
-    - Important code examples or technical concepts covered
-    - Key takeaways for developers
-    - Relevant urls to media that are associated with the key sections and 
-      can be associated with a tweet, this must be done
+    Apply these negative constraints without exception:
+    - No emojis.
+    - No punchy contrast lines such as "X is not great. But neither is Y."
+    - No causal hook constructions such as "Since X, that is why Y."
+    - No weirdly optimistic or motivational sentences.
+    - No meta-commentary such as "Let us explore", "Here is the truth",
+      "The real issue is", or "Here is what I found out."
+    - Do not use the words: quiet, interesting, exciting, explore.
+  expected_output: >
+    A complete post draft as a plain text string following the exact section
+    structure described. Each section should be labeled with its section name
+    as a plain text header. The draft must be ready for critic review.
+  agent: writer
+  context:
+    - filter_task
+    - sharpen_topic_task
 
+critic_task:
+  description: >
+    Review the post draft produced by the Writer against every style constraint
+    listed below. Check each sentence individually.
 
+    Banned patterns:
+    - Punchy contrast lines: "X is not great. But neither is Y."
+    - Causal hook constructions: "Since X, that is why Y."
+    - Weirdly optimistic or motivational sentences.
+    - Meta-commentary phrases: "Let us explore", "Here is the truth",
+      "The real issue is", "Here is what I found out."
+    - One-liner sentences used as standalone paragraphs.
+    - Emojis anywhere in the draft.
+    - Advisory or instructional framing directed at the reader.
 
-create_linkedin_post_plan:
-  description: |
-    Develop a comprehensive LinkedIn post based on the draft analysis provided
-    and closely follow the writing style prvided in the {path_to_example_linkedin}
+    Banned words:
+    - quiet, interesting, exciting, explore
 
-    The post should present technical content in a professional, long-form format
-    while maintaining engagement and readability.
-
-    Plan should include:
-    - An attention-grabbing opening statement, it should be same as the title of the blog
-    - Well-structured body that breaks down the technical content
-    - Professional tone suitable for LinkedIn's business audience
-    - One main blog URL placed strategically at the end of the post
-    - Strategic use of line breaks and formatting
-    - Relevant hashtags (3-5 maximum)
-
-    Make sure to cover:
-    - close follow the writing style provided in the {path_to_example_linkedin}
-    - The core technical problem and its business impact
-    - Key solutions and technical approaches
-    - Real-world applications and benefits
-    - Professional insights or lessons learned
-    - Clear call to action
-
-    Focus on creating content that resonates with both technical professionals
-    and business leaders while maintaining technical accuracy.
-  expected_output: |
-    A LinkedIn post plan containing:
-      - content
-      - a main blog url that is associated with the post
+    For each violation found, return the exact offending sentence,
+    the rule it breaks, and a corrected version of that sentence.
+    If no violations are found, return a confirmation that the draft is clean.
+  expected_output: >
+    A JSON object with two keys:
+    "violations" a list of objects each containing "sentence" the offending
+    text, "rule" the constraint broken, and "correction" a rewritten version.
+    "status" either "violations_found" or "clean".
+    If status is "clean", violations should be an empty list.
+  agent: critic
+  context:
+    - write_task

@@ -1,27 +1,218 @@
+sharpen_topic_task:
+  description: >
+    Receive the following raw topic idea from the human: {topic}.
+
+    Your job is to produce a single precise, researchable claim from this topic.
+    Then identify 3 to 5 sub-questions that, when individually answered with facts,
+    would make that claim credible to a skeptical reader.
+    For each sub-question, generate 2 to 3 specific search terms a researcher
+    would use to find credible sources on that question.
+
+    Do not suggest tone, format, audience, or writing style.
+    Do not begin writing any content.
+    Output only the structured data described below.
+  expected_output: >
+    A JSON object with exactly three keys:
+    "core_claim" — a single sentence stating the precise claim to be investigated.
+    "sub_questions" — a list of 3 to 5 strings, each a specific investigative question
+    that supports the core claim.
+    "search_terms" — a list of objects, each containing a "sub_question" string and
+    a "terms" array of 2 to 3 search strings for that question.
+  agent: topic_analyst
+
+
 research_task:
-    description: >
-        Use the SerperDevTool to find the most relevant and 
-        recent data on {topic}.
-    agent: research_agent
-    expected_output: >
-        A detailed research report with key insights and 
-        source references.
-    verbose: true
+  description: >
+    You will receive a core claim, a list of sub-questions, and search terms
+    from the Topic Analyst.
+    For each sub-question, search using tavily_search_tool to find 2 to 3
+    credible sources. For each source found, use firecrawl_scrape_tool to
+    scrape the full page content. Store both the specific extracted claim
+    AND the full scraped markdown in your output. The full content will be
+    used downstream for verification — do not summarize it
 
-summarization_task:
-    description: >
-        Summarize the research findings into a well-structured, 
-        concise report.
-    agent: summarization_agent
-    expected_output: >
-        A summary highlighting the key takeaways from the research.
-    verbose: true
 
-fact_checking_task:
-    description: >
-        Cross-check the summarized information for accuracy and 
-        remove any misleading claims.
-    agent: fact_checker_agent
-    expected_output: >
-        A fact-checked and verified research summary.
-    verbose: true
+    For each source found:
+    - Extract the single most relevant factual claim or data point from that source.
+    - Record the full URL.
+    - Record the name of the publication or institution.
+    - Flag the source type as either "data" if it contains statistics or numeric evidence,
+      or "analysis" if it contains expert opinion, qualitative findings, or case description.
+
+    Do not paraphrase, summarize, or editorialize the extracted text.
+    Return raw factual extracts only.
+  expected_output: >
+    A JSON object with one key:
+    "sources" — an array of objects. Each object contains:
+    "sub_question" — the question this source addresses,
+    "url" — the full source URL,
+    "institution" — the name of the publication or body,
+    "extract" — the raw factual text extracted verbatim from the source,
+    "type" — either "data" or "analysis".
+  agent: researcher
+  context:
+    - sharpen_topic_task
+
+
+filter_task:
+  description: >
+    You will receive research sources. Each source contains an "extract"
+    field with the researcher's pulled claim, and a "full_content" field
+    with the complete scraped page. 
+
+    For sources where type is "data", verify the extract against the
+    full_content directly — confirm the number, statistic, or claim
+    appears in context and is not misrepresented. No tool calls needed.
+
+    For sources where type is "analysis", apply the four criteria without
+    verification.
+
+    Discard any source where the extract cannot be confirmed in full_content.
+    You will receive the full research dump from the Researcher and the core
+    claim from the Topic Analyst.
+
+    Apply the following four criteria to every source extract individually.
+    An extract must pass all four to be retained:
+
+    1. Factual and verifiable — the claim is stated as a fact and traceable to the source.
+    2. Directly supports the core claim — it strengthens the argument, not a tangent.
+    3. From a reputed source — journal, government body, institutional research, or
+       recognized statistical authority.
+    4. Expressible in plain language — it can be written in a post without requiring
+       technical explanation or domain jargon.
+
+    Do not explain or list what was discarded. Return only what passes.
+
+    Group passing extracts into three categories:
+    - core_facts: extracts that establish or directly prove the central claim.
+    - supporting_statistics: extracts containing numeric or measurable data.
+    - case_studies: extracts describing a concrete real-world instance of the claim.
+
+    Each retained extract must keep its original url, institution, and extract fields intact.
+  expected_output: >
+    A JSON object with exactly three keys:
+    "core_facts" — a list of extract objects that passed all criteria and establish
+    the foundational claims.
+    "supporting_statistics" — a list of extract objects that contain numeric or
+    measurable evidence.
+    "case_studies" — a list of extract objects describing a real-world example
+    of the claim in action.
+    Each object in every list retains the original fields: sub_question, url,
+    institution, extract, and type.
+  agent: editorial_filter
+  context:
+    - research_task
+    - sharpen_topic_task
+
+
+write_task:
+  description: >
+    You will receive the filtered research from the Editorial Filter and the
+    core claim from the Topic Analyst. Write a complete post draft.
+
+    Follow this exact section structure in this exact order:
+
+    OPENING STATEMENT
+    One sentence. States factually what is happening. No opinion, no hook,
+    no rhetorical question.
+
+    TERMS
+    Define any technical or domain-specific terms used in the post.
+    Write each definition as a full sentence. Skip this section entirely
+    if no terms require explanation.
+
+    CLAIMS
+    State the core claim and any directly related opinions clearly.
+    Do not support them here. This paragraph sets up what the facts will confirm.
+
+    FACTS
+    Present only verified facts drawn from the filtered research.
+    Every fact must have come from the research provided.
+    Do not introduce facts not present in the filtered data.
+
+    EXAMPLES
+    Describe one concrete real-world case or instance that illustrates the claim.
+    Use only what is available in the case_studies from the filtered research.
+
+    CLOSING STATEMENT
+    One sentence. Summarizes without motivating, advising, or inspiring the reader.
+
+    SOURCES
+    List every source used with its full URL on a separate line.
+
+    HASHTAGS
+    3 to 5 hashtags. Use only the hash symbol. No punctuation, no periods, no commas.
+
+    ---
+
+    TONE RULES — apply without exception:
+    - Sassy and direct. Not humorous. Not warm. Not conversational.
+    - Report information. Do not instruct, advise, or coach the reader.
+    - Write in full sentences throughout. No one-liners standing alone as paragraphs.
+
+    NEGATIVE CONSTRAINTS — never violate any of these:
+    - No emojis anywhere in the draft.
+    - No punchy contrast constructions such as "X is not great. But neither is Y."
+    - No causal hook constructions such as "Since X, that is why Y."
+    - No weirdly optimistic or motivational sentences.
+    - No meta-commentary: do not use "Let us explore", "Here is the truth",
+      "The real issue is", "Here is what I found out", or any equivalent phrasing.
+    - Do not use the following words anywhere in the draft:
+      quiet, interesting, exciting, explore.
+  expected_output: >
+    A complete post draft as a plain text string. Each section is labeled with
+    its section name in uppercase as a plain text header followed by a line break.
+    The draft must contain all eight sections in order.
+    The draft must be ready for critic review without any further editing by the writer.
+  agent: writer
+  context:
+    - filter_task
+    - sharpen_topic_task
+
+
+critic_task:
+  description: >
+    You will receive the post draft from the Writer. Your job is to check every
+    sentence against the style constraints listed below. Read the draft line by line.
+
+    CHECK FOR THE FOLLOWING VIOLATIONS:
+
+    Banned sentence patterns:
+    - Punchy contrast lines: sentences structured as "X is not great. But neither is Y."
+      or any variation of this two-sentence contrast pattern.
+    - Causal hook constructions: sentences structured as "Since X, that is why Y."
+      or equivalent logical chain hooks.
+    - Motivational or optimistic sentences: any sentence that implies the reader
+      should feel hopeful, inspired, or energized.
+    - Meta-commentary: any sentence containing the phrases "let us explore",
+      "here is the truth", "the real issue is", "here is what I found out",
+      or equivalent signposting language.
+    - One-liner sentences used as standalone paragraphs of a single short sentence
+      with no elaboration.
+    - Advisory framing: any sentence that instructs, coaches, or directs the reader
+      to do something.
+
+    Banned words — flag if any of these appear anywhere in the draft:
+    quiet, interesting, exciting, explore
+
+    Formatting violations:
+    - Emojis anywhere in the draft.
+    - Missing sections from the required structure.
+    - Hashtags with punctuation other than the hash symbol.
+
+    For every violation found, record the exact offending sentence or phrase,
+    state which rule it breaks, and write a corrected version.
+
+    If no violations are found across the entire draft, confirm the draft is clean.
+  expected_output: >
+    A JSON object with exactly two keys:
+    "status" — either "violations_found" or "clean".
+    "violations" — a list of objects. Each object contains:
+    "sentence" — the exact offending text from the draft,
+    "rule" — the constraint it violates stated plainly,
+    "correction" — a rewritten version of that sentence that passes the constraint.
+    If status is "clean", violations must be an empty list.
+  agent: critic
+  context:
+    - write_task
+
