@@ -1,4 +1,4 @@
-# Multi-Agents-Crew-AI (Crew AI Workbench)
+# Multi-Agents-Crew-AI (Crew AI Workbench) AND Multi Agent Deep Research (Langchain and Langgraph)
 
 A multi-agent AI workbench built with **CrewAI** + **Streamlit** for running agent-based workflows from a single UI.  
 This repository currently focuses on a **LinkedIn Content Creation** pipeline that researches a topic, optionally scrapes a source URL for context, drafts a post, and runs a critic step to validate the output.
